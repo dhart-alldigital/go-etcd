@@ -298,17 +298,21 @@ func (c *Client) SyncCluster() bool {
 
 // internalSyncCluster syncs cluster information using the given machine list.
 func (c *Client) internalSyncCluster(machines []string) bool {
+	logger.Debug("hit internalSyncCluster")
 	for _, machine := range machines {
 		httpPath := c.createHttpPath(machine, path.Join(version, "machines"))
+		logger.Debug("Retrieving list of machines from ", httpPath)
 		resp, err := c.httpClient.Get(httpPath)
 		if err != nil {
 			// try another machine in the cluster
+			logger.Debug("Got error, therefore moving onto next: ", err)
 			continue
 		} else {
 			b, err := ioutil.ReadAll(resp.Body)
 			resp.Body.Close()
 			if err != nil {
 				// try another machine in the cluster
+				logger.Debug("Got error, therefore moving onto next: ", err)
 				continue
 			}
 
@@ -324,6 +328,7 @@ func (c *Client) internalSyncCluster(machines []string) bool {
 			return true
 		}
 	}
+	logger.Debug("Wasn't able to sync")
 	return false
 }
 
